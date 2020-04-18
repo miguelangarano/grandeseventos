@@ -8,5 +8,5 @@ class Evento extends Model
 {
     public $table = "eventos";
     //
-    protected $fillable = ['id_lugar', 'nombre'];
+    protected $fillable = ['id_lugar', 'direccion', 'nombre', 'fecha', 'hora'];
 }

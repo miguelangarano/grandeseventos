@@ -24,17 +24,17 @@
 <body>
     <div class="container">
         <div class="row col-md-6 col-md-offset-2 custyle">
-        <table id="eventos" class="table table-striped custab">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Evento</th>
-                <th>Ver</th>
-            </tr>
-        </thead>
-                <tr>
-                </tr>
-        </table>
+            <table id="eventos" class="table table-striped custab">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Evento</th>
+                        <th>Ver</th>
+                    </tr>
+                </thead>
+                        <tr>
+                        </tr>
+            </table>
         </div>
     </div>
     <script>
@@ -48,7 +48,7 @@
     </script>
     <script>
         function onEventClick(id){
-            window.location.href = 'http://localhost:8000/events?id='+id;
+            window.location.href = 'http://localhost:8000/login?id='+id;
         }
     </script>
 </body>

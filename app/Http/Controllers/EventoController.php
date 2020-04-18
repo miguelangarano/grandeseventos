@@ -44,6 +44,9 @@ class EventoController extends Controller
         $evento = new Evento();
         $evento->id_lugar = $request->id_lugar;
         $evento->nombre = $request->nombre;
+        $evento->fecha = $request->fecha;
+        $evento->hora = $request->hora;
+        $evento->direccion = $request->direccion;
         $evento->save();
         for($i=0; $i<count($request->localidades); $i++){
             $eventoslocalidades = new EventosLocalidades();

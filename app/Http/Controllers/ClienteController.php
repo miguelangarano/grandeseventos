@@ -38,6 +38,7 @@ class ClienteController extends Controller
     public function store(Request $request)
     {
         //
+
         if(Cliente::Create($request->all())){
             return true;
         }

@@ -133,49 +133,121 @@
                 <div class="meta card-text">
                     <a id="cardsubtitle"></a>
                 </div>
-                <select id="localidades">
-                </select>
+                <div class="meta card-text">
+                    <a id="fechahora"></a>
+                </div>
+                <div class="meta card-text">
+                    <a id="direccion"></a>
+                </div>
             </div>
+            <table id="localidadestable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Localidad</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                        <tr>
+                        </tr>
+            </table>
+
+
+
             <div>
                 <h4 id="totaltext"></h4>
             </div>
             <div class="card-footer">
-                <button class="btn btn-info float-right btn-sm">Comprar</button>
+                <button class="btn btn-info float-right btn-sm" onClick="comprar()">Comprar</button>
             </div>
         </div>
     </div>
     <script>
-        let id = window.location.href.split("id=")[1];
+        let id = window.location.href.split("id=")[1].split("?")[0];
+        let clientid = window.location.href.split("clientid=")[1];
         var event = {};
-        console.log(id);
+        var valueSelected;
+        var payed = false;
         $.get("http://localhost:8000/api/eventos/"+id, function(val){
-            console.log(val);
             evet = val;
             $('#cardtitle').text(val[0]['nombre']);
             $('#cardsubtitle').text(val[2]['nombre']);
             let total = 0;
+            let i=0;
+            var trHTML = '';
             val[1].forEach(function (value){
-                console.log(value);
-                $('#localidades').append('<option value="'+value['id']+'" selected="selected">'+value['nombre']+'</option>');
+                //$('#localidades').append('<option value="'+i+'" selected="selected">'+value['nombre']+'</option>');
+                //valueSelected = i;
+                
+                trHTML += '<tr><td>' + i+ '</td><td>' + value['nombre'] + '</td>  <td><button onClick=onClickMasLocalidad('+i+')>+</button></td>   <h4 id="localidad'+i+'">0</h4>    <td><button onClick=onClickMenosLocalidad('+i+')>-</button></td>  </tr>';
+                i++;
             });
+            $('#localidadestable').append(trHTML);
             total = total+val[1][val[1].length-1]['precio'];
+            event.lugar = val[2];
+            event.evento = val[0];
+            event.localidades = val[1];
+            event.localidadesSeleccionadas = val[1];
+            let j=0;
+            event.localidadesSeleccionadas.forEach(function(lc){
+                event.localidadesSeleccionadas[j].cupos = 0;
+                j++;
+            });
             event.total = total;
             event.cantidad = 1;
-            $('#totaltext').text("Total: "+total);
+            $('#direccion').text("Dirección: "+event.evento.direccion);
+            $('#totaltext').text("$Total: "+total);
         });
         $('#localidades').change(function () {
             var optionSelected = $(this).find("option:selected");
-            var valueSelected  = optionSelected.val();
+            valueSelected  = optionSelected.val();
             var textSelected   = optionSelected.text();
-            console.log(textSelected);
             event.total = 0;
-            console.log(event[1]);
-            //event.total = event[1]
+            event.total = event.localidades[valueSelected].precio*event.cantidad
+            $('#totaltext').text("$Total: "+event.total);
         });
-    </script>
-    <script>
-        function onEventClick(id){
-            window.location.href = 'http://localhost:8000/events?id='+id;
+        function onClickMasLocalidad(index){
+            console.log(index);
+            let canti = event.localidadesSeleccionadas[index].cupos;
+            console.log(canti);
+            console.log(event.localidades[index].cupos);
+            if(canti<event.localidades[index].cupos){
+                event.localidadesSeleccionadas[index].cupos = event.localidadesSeleccionadas[index].cupos+1;
+                canti = event.localidadesSeleccionadas[index].cupos;
+                $("#localidad"+index).text(canti);
+            }else{
+                alert("No existen tantos asientos para esta localidad");
+            }
+            
+        } 
+        function onClickMenosLocalidad(index){
+            console.log(index);
+            let canti = event.localidadesSeleccionadas[index].cupos;
+            if(canti<event.localidades[index].cupos){
+                event.localidadesSeleccionadas[index].cupos = event.localidadesSeleccionadas[index].cupos-1;
+                canti = event.localidadesSeleccionadas[index].cupos;
+                $("#localidad"+index).text(canti);
+            }else{
+                alert("No existen tantos asientos para esta localidad");
+            }
+        } 
+        function comprar(){
+            console.log(event);
+            if (confirm('¿Desea realizar su pago ahora?')) {
+                // Save it!
+                console.log("pagado");
+                payed = true;
+                order = {
+                    "id_cliente": clientid,
+                    "total": event.total,
+                    "id_evento": id,
+                    "id_localidad": event.localidades[valueSelected].id,
+                    "asientos": event.cantidad
+                };
+            } else {
+                // Do nothing!
+                alert("Debe pagar para obtener su ticket");
+            }
         }
     </script>
 </body>

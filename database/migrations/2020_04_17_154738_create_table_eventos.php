@@ -17,6 +17,9 @@ class CreateTableEventos extends Migration
             $table->increments('id');
             $table->string('nombre');
             $table->integer('id_lugar');
+            $table->string('fecha');
+            $table->string('hora');
+            $table->string('direccion');
             $table->timestamps();
         });
     }

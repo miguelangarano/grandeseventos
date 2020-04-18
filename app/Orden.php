@@ -8,5 +8,5 @@ class Orden extends Model
 {
     public $table = "ordenes";
     //
-    protected $fillable = ['id_cliente', 'total', 'id_evento', 'pagado'];
+    protected $fillable = ['id_cliente', 'total', 'id_evento', 'asientos', ];
 }
