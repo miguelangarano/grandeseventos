@@ -169,84 +169,107 @@
         var valueSelected;
         var payed = false;
         $.get("http://localhost:8000/api/eventos/"+id, function(val){
-            evet = val;
+            console.log(val[1]);
             $('#cardtitle').text(val[0]['nombre']);
             $('#cardsubtitle').text(val[2]['nombre']);
             let total = 0;
             let i=0;
             var trHTML = '';
+            
             val[1].forEach(function (value){
-                //$('#localidades').append('<option value="'+i+'" selected="selected">'+value['nombre']+'</option>');
-                //valueSelected = i;
-                
-                trHTML += '<tr><td>' + i+ '</td><td>' + value['nombre'] + '</td>  <td><button onClick=onClickMasLocalidad('+i+')>+</button></td>   <h4 id="localidad'+i+'">0</h4>    <td><button onClick=onClickMenosLocalidad('+i+')>-</button></td>  </tr>';
+                trHTML += '<tr><td>' + i+ '</td><td>' + value['nombre'] + '</td>  <td><button onClick=onClickMasLocalidad('+i+')>+</button></td>   <td><h4 id="localidad'+i+'">0</h4></td>    <td><button onClick=onClickMenosLocalidad('+i+')>-</button></td>  </tr>';
                 i++;
             });
             $('#localidadestable').append(trHTML);
+            
             total = total+val[1][val[1].length-1]['precio'];
             event.lugar = val[2];
             event.evento = val[0];
             event.localidades = val[1];
-            event.localidadesSeleccionadas = val[1];
-            let j=0;
-            event.localidadesSeleccionadas.forEach(function(lc){
-                event.localidadesSeleccionadas[j].cupos = 0;
-                j++;
-            });
-            event.total = total;
-            event.cantidad = 1;
-            $('#direccion').text("Dirección: "+event.evento.direccion);
-            $('#totaltext').text("$Total: "+total);
-        });
-        $('#localidades').change(function () {
-            var optionSelected = $(this).find("option:selected");
-            valueSelected  = optionSelected.val();
-            var textSelected   = optionSelected.text();
+            event.localidadesSeleccionadas = [];
+            for(let j=0; j<event.localidades.length; j++) {
+                let obj = {
+                    id: event.localidades[j].id,
+                    nombre: event.localidades[j].nombre,
+                    precio: event.localidades[j].precio,
+                    cupos: 0
+                };
+                event.localidadesSeleccionadas.push(obj);
+            };
             event.total = 0;
-            event.total = event.localidades[valueSelected].precio*event.cantidad
-            $('#totaltext').text("$Total: "+event.total);
+            event.cantidad=0;
+            $('#direccion').text("Dirección: "+event.evento.direccion);
+            $('#totaltext').text("$Total: 0");
         });
         function onClickMasLocalidad(index){
-            console.log(index);
             let canti = event.localidadesSeleccionadas[index].cupos;
-            console.log(canti);
-            console.log(event.localidades[index].cupos);
             if(canti<event.localidades[index].cupos){
                 event.localidadesSeleccionadas[index].cupos = event.localidadesSeleccionadas[index].cupos+1;
                 canti = event.localidadesSeleccionadas[index].cupos;
+
+                if(canti!=0){
+                    event.total = event.total+event.localidadesSeleccionadas[index].precio;
+                }else{
+                    event.total = event.total+event.localidadesSeleccionadas[index].precio;
+                }
+                event.cantidad = event.cantidad+1;
                 $("#localidad"+index).text(canti);
+                $('#totaltext').text("$Total: "+event.total);
             }else{
                 alert("No existen tantos asientos para esta localidad");
             }
             
         } 
         function onClickMenosLocalidad(index){
-            console.log(index);
             let canti = event.localidadesSeleccionadas[index].cupos;
-            if(canti<event.localidades[index].cupos){
+            if(canti>=1){
                 event.localidadesSeleccionadas[index].cupos = event.localidadesSeleccionadas[index].cupos-1;
                 canti = event.localidadesSeleccionadas[index].cupos;
+                if(canti!=0){
+                    event.total = event.total-event.localidadesSeleccionadas[index].precio;
+                }else{
+                    event.total = event.total-event.localidadesSeleccionadas[index].precio;
+                }
+                event.cantidad = event.cantidad-1;
                 $("#localidad"+index).text(canti);
+                $('#totaltext').text("$Total: "+event.total);
             }else{
                 alert("No existen tantos asientos para esta localidad");
             }
         } 
         function comprar(){
             console.log(event);
-            if (confirm('¿Desea realizar su pago ahora?')) {
-                // Save it!
-                console.log("pagado");
-                payed = true;
-                order = {
-                    "id_cliente": clientid,
-                    "total": event.total,
-                    "id_evento": id,
-                    "id_localidad": event.localidades[valueSelected].id,
-                    "asientos": event.cantidad
-                };
-            } else {
-                // Do nothing!
-                alert("Debe pagar para obtener su ticket");
+            if(event.cantidad>0){
+                if (confirm('¿Desea realizar su pago ahora?')) {
+                    // Save it!
+                    console.log("pagado");
+                    payed = true;
+                    event.localidadesfinal = [];
+                    order = {
+                        "id_cliente": clientid,
+                        "total": event.total,
+                        "id_evento": id,
+                        "localidades": event.localidadesSeleccionadas,
+                        "asientos": event.cantidad
+                    };
+                    $.ajax({
+                        url: "http://localhost:8000/api/ordenes",
+                        type:"POST",
+                        processData:false,
+                        contentType: "application/json",
+                        data: JSON.stringify(order),
+                        complete: function(data){
+                            alert("Listo. Has comprado tu ticket.")
+                            let id = window.location.href.split("id=")[1];
+                            window.location.href = 'http://localhost:8000/events';
+                        }
+                    });
+                } else {
+                    // Do nothing!
+                    alert("Debe pagar para obtener su ticket.");
+                }
+            }else{
+                alert("Selecciona por lo menos 1 asiento.")
             }
         }
     </script>

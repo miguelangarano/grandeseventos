@@ -18,7 +18,7 @@ class CreateTableOrdenes extends Migration
             $table->integer('id_cliente');
             $table->double('total');
             $table->integer('id_evento');
-            $table->boolean('pagado');
+            $table->integer('asientos');
             $table->timestamps();
         });
     }

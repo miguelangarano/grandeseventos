@@ -43,12 +43,16 @@ class OrdenController extends Controller
         $orden->id_cliente = $request->id_cliente;
         $orden->total = $request->total;
         $orden->id_evento = $request->id_evento;
-        $orden->pagado = $request->pagado;
+        $orden->asientos = $request->asientos;
         $orden->save();
         for($i=0; $i<count($request->localidades); $i++){
+            $out = new \Symfony\Component\Console\Output\ConsoleOutput();
+            $out->writeln($request->localidades[$i]);
             $ordeneslocalidades = new OrdenesLocalidades();
             $ordeneslocalidades->id_orden = $orden->id;
-            $ordeneslocalidades->id_localidad = $request->localidades[$i];
+            $ordeneslocalidades->id_localidad = $request->localidades[$i]->id;
+            $ordeneslocalidades->cantidad = $request->localidades[$i]->cupos;
+            $ordeneslocalidades->precio = $request->localidades[$i]->precio;
             $ordeneslocalidades->save();
         }
         return true;

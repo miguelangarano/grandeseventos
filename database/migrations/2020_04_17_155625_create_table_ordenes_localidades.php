@@ -17,6 +17,8 @@ class CreateTableOrdenesLocalidades extends Migration
             $table->increments('id');
             $table->integer('id_orden');
             $table->integer('id_localidad');
+            $table->integer('cantidad');
+            $table->double('precio');
             $table->timestamps();
         });
     }

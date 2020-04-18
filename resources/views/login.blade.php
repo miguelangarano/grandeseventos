@@ -331,8 +331,6 @@
         }); 
         function register(){
             if(client.nombre!=="" && client.cedula!=="" && client.direccion!=="" && client.telefono!==""){
-                console.log(client);
-                
                 $.ajax({
                     url: "http://localhost:8000/api/clientes",
                     type:"POST",
@@ -344,10 +342,6 @@
                         window.location.href = 'http://localhost:8000/event?id='+id+"?clientid="+client.cedula;
                     }
                 });
-                /*$.post("http://localhost:8000/api/clientes", client, function(val){
-                    let id = window.location.href.split("id=");
-                    window.location.href = 'http://localhost:8000/events?id='+id;
-                });*/
             }else{
                 alert("Debe ingresar todos los campos");
             }
